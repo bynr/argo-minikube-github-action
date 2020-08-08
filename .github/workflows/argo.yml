@@ -1,6 +1,9 @@
 name: CI
 on:
-  - pull_request
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
 jobs:
   job1:
     runs-on: ubuntu-latest
@@ -11,13 +14,13 @@ jobs:
       uses: medyagh/setup-minikube@master
     - name: Set up persistent volume and storage pod
       run: |
-        kubectl apply -f pv-volume.yaml 
+        kubectl apply -f pv-volume.yaml
     - name: Set up argo
       run: |
         kubectl create ns argo
         kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/stable/manifests/quick-start-postgres.yaml
         curl -sLO https://github.com/argoproj/argo/releases/download/v2.10.0-rc3/argo-linux-amd64
-        chmod +x argo-linux-amd64 
+        chmod +x argo-linux-amd64
         # $HOME : /home/runner
         # whoami : runner
         # pwd : /home/runner/work/argo-minikube-github-action/argo-minikube-github-action
@@ -34,11 +37,11 @@ jobs:
         minikube ssh "ls -l /mnt/data"
         mkdir outputs
         echo Copy file with kubectl cp task-pv-pod:/mnt/data/test.txt test.txt :
-        kubectl cp task-pv-pod:/mnt/data/test.txt outputs/test.txt 
+        kubectl cp task-pv-pod:/mnt/data/test.txt outputs/test.txt
         echo ls -l :
         ls -l
     - name: Upload the ouput as a github artifact
       uses: actions/upload-artifact@v2
       with:
         name: output
-        path: outputs/       
+        path: outputs/
